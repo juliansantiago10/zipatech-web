@@ -140,33 +140,104 @@
 
   <!-- Sección Contacto / Call to Action -->
   <section id="contacto" class="max-w-4xl mx-auto px-6 py-20 border-t border-slate-800 text-center">
-    <h2 class="text-3xl font-bold text-white mb-4">¿Listo para liberar la capacidad de tu equipo?</h2>
-    <p class="text-slate-400 mb-8">Cuéntanos sobre tus procesos actuales y analicemos cómo integrarlo con Liber.</p>
+    <h2 class="text-3xl font-bold text-white mb-4">¿Listo para liberar la capacidad operativa de tu empresa?</h2>
+    <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-8">
+      Completa el formulario y analizaremos la viabilidad de automatización para tus procesos.
+    </p>
 
-    <form class="max-w-md mx-auto space-y-4 text-left">
+    <form id="form-contacto" class="max-w-md mx-auto space-y-4 text-left">
       <div>
         <label class="block text-sm font-medium text-slate-300 mb-1">Nombre</label>
-        <input type="text" placeholder="Tu nombre"
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500"
-          required />
+        <input 
+          type="text" 
+          name="Nombre" 
+          placeholder="Tu nombre" 
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500" 
+          required 
+        />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
-        <input type="email" placeholder="tu@empresa.com"
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500"
-          required />
+        <input 
+          type="email" 
+          name="Correo" 
+          placeholder="tu@empresa.com" 
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500" 
+          required 
+        />
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-300 mb-1">¿Qué proceso te gustaría automatizar?</label>
-        <textarea rows="3" placeholder="Describe brevemente tus necesidades..."
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+        <textarea 
+          rows="3" 
+          name="Proceso_a_automatizar" 
+          placeholder="Describe brevemente tus necesidades..." 
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-emerald-500"
+          required
+        ></textarea>
       </div>
-      <button type="submit"
-        class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition">
+      <button 
+        type="submit" 
+        id="btn-submit"
+        class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition cursor-pointer"
+      >
         Enviar Solicitud
       </button>
     </form>
   </section>
+
+  <!-- Script de envío a Google Sheets vía SheetDB -->
+  <script>
+    const form = document.getElementById('form-contacto');
+    const submitBtn = document.getElementById('btn-submit');
+    
+    // REEMPLAZA ESTA URL CON LA QUE TE GENERE SHEETDB.IO
+    const SHEETDB_URL = 'https://sheetdb.io/api/v1/o5ti0xpeov410';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = 'Enviando...';
+      submitBtn.disabled = true;
+
+      const payload = {
+        data: [{
+          Nombre: form.querySelector('input[name="Nombre"]').value,
+          Correo: form.querySelector('input[name="Correo"]').value,
+          Proceso_a_automatizar: form.querySelector('textarea[name="Proceso_a_automatizar"]').value,
+          Fecha: new Date().toLocaleString('es-CO')
+        }]
+      };
+
+      try {
+        const response = await fetch(SHEETDB_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          // Si tienes la página de gracias creada, descomenta la siguiente línea:
+          // window.location.href = '/gracias.html';
+          
+          alert('¡Solicitud enviada con éxito! Nos pondremos en contacto contigo.');
+          form.reset();
+        } else {
+          throw new Error('Error al enviar los datos');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ocurrió un error al enviar el formulario. Por favor intenta de nuevo.');
+      } finally {
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
 
   <!-- Footer -->
   <footer class="text-center py-8 text-xs text-slate-500 border-t border-slate-800/50">
